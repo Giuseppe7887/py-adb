@@ -22,7 +22,11 @@ sudo apt-get install android-tools-adb
 brew install android-platform-tools
 ```
 
-<i style="font-weight:200">
+<h2 style="color:red">IMPORTANT<h1>
+
+##### BEFORE STARTING USING PY-ADB ENSURE DEVELOPER OPTION ARE ACTIVE
+
+<i style="font-weight:200; font-size:20px">
     Using PY-ADB is simple, just clone the repo <a href="https://github.com/Giuseppe7887/py-adb" >py-adb</a> then move to PY-ADB directory just created, then create new script to use it
 </i>
 
