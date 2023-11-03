@@ -26,7 +26,7 @@ brew install android-platform-tools
 
 ## BEFORE STARTING USING PY-ADB ENSURE YOU HAVE ENABLED DEVELOPER OPTIONS 
 
-<img src="./assets/1.jpg" width=300 />
+<img src="./assets/1.jpg" width=300 style="display:inline" />
 
 <br/>
 
