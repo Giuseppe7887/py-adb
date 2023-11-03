@@ -22,6 +22,7 @@ sudo apt-get install android-tools-adb
 brew install android-platform-tools
 ```
 
+
 <h2 style="color:red">IMPORTANT<h2>
 
 
