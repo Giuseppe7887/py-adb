@@ -22,8 +22,7 @@ sudo apt-get install android-tools-adb
 brew install android-platform-tools
 ```
 
-
-<h2 style="color:red">IMPORTANT<h2>
+<h2>IMPORTANT<h2>
 
 <h2>BEFORE STARTING USING PY-ADB ENSURE YOU HAVE ENABLED DEVELOPER OPTIONS</h2>
 
