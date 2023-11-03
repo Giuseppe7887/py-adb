@@ -1,7 +1,7 @@
 # PY-ADB
 
 <i style="font-weight:200">
-    This is a package to command android device with Python, it use <b>ADB</b>, so if you don't have it, please install latest version at: <b>aggiungere link adb<b>
+    This is a package to command android device with Python, it use <b>ADB</b>, so if you don't have it, plaese install it before.
 </i>
 
 Tested on <code>Windows 11</code>, <code>Linux Ubuntu 22.04.1</code> and <code>Linux Mint 21.1</code>
@@ -23,13 +23,13 @@ brew install android-platform-tools
 ```
 
 <i style="font-weight:200">
-    Using PY-ADB is simple, just clone the repo ### INSERISCI LINK #### then move to PY-ADB directory just created, then create new script to use it
+    Using PY-ADB is simple, just clone the repo <a href="https://github.com/Giuseppe7887/py-adb" >py-adb</a> then move to PY-ADB directory just created, then create new script to use it
 </i>
 
 <hr/>
 
 ```bash
-git clone https....
+git clone https://github.com/Giuseppe7887/py-adb
 cd PY-ADB
 # create main.py file
 ```
@@ -37,6 +37,7 @@ cd PY-ADB
 ## <code>EXAMPLES</code>
 
 ```python
+# in main.py
 from py_adb import Py_adb
 
 adb_connector = Py_adb() 
