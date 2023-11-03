@@ -24,7 +24,6 @@ brew install android-platform-tools
 
 <h2 style="color:red">IMPORTANT<h2>
 
-##### BEFORE STARTING USING PY-ADB ENSURE DEVELOPER OPTION ARE ACTIVE
 
 <img src="./assets/1.jpg" width=300 />
 
