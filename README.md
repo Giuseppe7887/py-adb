@@ -8,7 +8,7 @@ Tested on <code>Windows 11</code>, <code>Linux Ubuntu 22.04.1</code> and <code>L
 
 ## <code>REQUIREMENTS</code>
 
-* [Python > 3.10](https://www.python.org/)
+* [Python > 3.7](https://www.python.org/)
 * [ADB](https://developer.android.com/tools/adb?hl=it) 
 
 ```bash
