@@ -91,10 +91,7 @@ def execute_keyevent(CMD_KEYEVENT:str)->bool:
 def execute_intent(CMD_INTENT:str) ->bool:
     res = check_output(CMD_INTENT, shell=True).decode("utf8")
     
-    if "Starting: Intent" in  res:
-        return True 
-    else:
-        return False
+    return "Starting: Intent" in  res
     
 
 def clear_cmd():
