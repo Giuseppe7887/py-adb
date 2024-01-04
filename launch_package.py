@@ -12,7 +12,7 @@ scelta = pick(options=clear,title="scegli una versione",indicator=">")[0]
 
 CMD = "twine upload adb_connector_python/dist/{0} -u {1} -p {2}"
 
-with open(credenziali_path,"r") as credenziali:
+with open(credentials_path,"r") as credenziali:
     user, token = credenziali.readlines()
     if scelta == "auto":
         os.system(CMD.format("*",user.strip(),token.strip()))        
