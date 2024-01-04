@@ -1,5 +1,5 @@
 from subprocess import check_output, CalledProcessError
-from os import system
+from os import system, path as paths
 from sys import platform
 from time import sleep
 from termcolor import colored
@@ -264,13 +264,16 @@ the 'get_first_avaiable_device[\'id'] function and use theDEVICE_ID to refer to 
             if not device_id:
                 device_id = self.get_first_avaiable_device()['id']
 
-            screen_data: str = execute_keyevent(
+            screen_data: str = execute(
                 COMMAND_INFO_SCREEN.format(device_id))
-            battery_data: list = execute_keyevent(
+
+            battery_data: list = execute(
                 COMMAND_INFO_BATTERY.format(device_id)).split()
-            general_data: list = execute_keyevent(
+                
+            general_data: list = execute(
                 COMMAND_INFO_DEVICE.format(device_id)).split()
-            package_list_tmp: list = execute_keyevent(
+
+            package_list_tmp: list = execute(
                 COMMAND_LIST_PACKAGES.format(device_id)).split("\n")
 
             package_list: list = []
@@ -325,17 +328,26 @@ you have to allow the operation from the device
         if not self.get_first_avaiable_device():
             raise RuntimeError("no device detected")
         else:
-            self._basic_device_check()
+                self._basic_device_check()
             # path check
-            real_path: str = path.realpath(path)
-            if not path.exists(real_path):
-                raise RuntimeError(f"no such apk file: '{real_path}'")
+            # try:
 
-            if not device_id:
-                device_id = self.get_first_avaiable_device()['id']
+                if ".apk"  not in path:
+                    raise RuntimeError(f"'{path}' is not a apk file")
 
-            print(" > request sent to device")
-            return execute_keyevent(COMMAND_INSTALL_APK.format(device_id, path))
+                real_path: str = paths.realpath(path)
+                
+                if not paths.exists(real_path):
+                    raise RuntimeError(f"no such apk file: '{real_path}'")
+
+                if not device_id:
+                    device_id = self.get_first_avaiable_device()['id']
+
+                print(" > request sent to device")
+                return execute_keyevent(COMMAND_INSTALL_APK.format(device_id, path))
+            # except AttributeError:
+            #     raise AttributeError(f"colud not find  '{path}' on your pc")
+
 
     def uninstall_apk(self, package_name: str, device_id=None) -> bool:
         """
@@ -366,7 +378,7 @@ so you can create a custom error and isolate it
             raise RuntimeError("no device detected")
         else:
             self._basic_device_check()
-            if notdevice_id:
+            if not device_id:
                 device_id = self.get_first_avaiable_device()['id']
 
             if term:
@@ -434,8 +446,11 @@ this function send a sms, but the phone need to be locked
                 return False
             else:
                 for i in range(3):
+                    sleep(0.3)
                     execute_keyevent(BASIC_INPUT_KEYEVENT.format(
                         device_id, KEYEVENT_TAB))
+                    execute_keyevent(BASIC_INPUT_KEYEVENT.format(
+                        device_id, KEYEVENT_RETURN))
                 return True
 
     def insert_text(self, text: str, device_id: str = None) -> bool:
