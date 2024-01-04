@@ -3,6 +3,7 @@ from pick import pick
 
 project_dir = os.listdir("adb_connector_python/dist")
 
+credentials_path="~/.credentials/classic_token_github"
 
 clear = [el for el in project_dir]
 clear.append("auto")
