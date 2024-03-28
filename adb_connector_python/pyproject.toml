@@ -1,6 +1,6 @@
 [project]
 name="adb-connector-python"
-version="1.0.2"
+version="1.0.3"
 authors=[
     {name="Giuseppe Gravante"}
 ]
