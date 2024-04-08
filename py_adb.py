@@ -1,8 +1,9 @@
 from subprocess import check_output, CalledProcessError
-from os import system, path as paths
+from os import system
 from sys import platform
 from time import sleep
 from termcolor import colored
+from os.path import realpath,exists
 
 
 # INPUTS
@@ -12,7 +13,7 @@ COMMAND_INFO_BATTERY: str = "adb -s {0} shell dumpsys battery"
 COMMAND_INFO_DEVICE: str = "adb -s {0} shell getprop"
 COMMAND_LIST_PACKAGES: str = "adb -s {0} shell pm list packages"
 COMMAND_INSTALL_APK: str = "adb -s {0} install {1}"
-COMMAND_UNINSTALL_APK: str = "adb -s {0} uninstall -k --user 0 {1}"
+COMMAND_UNINSTALL_APK: str = "adb -s {0} uninstall --user 0 {1}"
 COMMAND_LOGCAT: str = "adb -s {0} logcat"
 COMMAND_INSERT_TEXT: str = "adb -s {0} shell input text {1}"
 COMMAND_TURN_OFF: str = "adb -s {0} shell reboot -p"
@@ -91,7 +92,10 @@ def execute_keyevent(CMD_KEYEVENT:str)->bool:
 def execute_intent(CMD_INTENT:str) ->bool:
     res = check_output(CMD_INTENT, shell=True).decode("utf8")
     
-    return "Starting: Intent" in  res
+    if "Starting: Intent" in  res:
+        return True 
+    else:
+        return False
     
 
 def clear_cmd():
@@ -221,6 +225,7 @@ this function just returns a dict of first device avaiable
 this is an internal function just to check if some devices are unauthorized, this may cause fatal errors
         """
         if not device_id:
+            if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
             device_id = self.get_first_avaiable_device()["id"]
         
         if "unauthorized" in execute("adb devices"):
@@ -238,6 +243,7 @@ this function can be called to check if display is awake and unlocked
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()['id']
 
             screen_data: str = execute(COMMAND_INFO_SCREEN.format(device_id))
@@ -246,6 +252,15 @@ this function can be called to check if display is awake and unlocked
                 "is_locked": "mDreamingLockscreen=true" in screen_data,
                 "is_awake": "screenState=SCREEN_STATE_ON" in screen_data,
             }
+        
+    def get_apps(self, device_id=None) ->str:
+        """get a list of all package on your device"""
+        if not device_id:
+            if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
+            device_id = self.get_first_avaiable_device()['id']
+
+            return self.phone_data(device_id=device_id)["packages"]["list"]
+        
 
     def phone_data(self, device_id=None) -> dict:
         """
@@ -262,17 +277,15 @@ the 'get_first_avaiable_device[\'id'] function and use theDEVICE_ID to refer to 
             self._basic_device_check()
             # if not providedDEVICE_ID take thedevice_id of the first avaiable
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connectedsms")
                 device_id = self.get_first_avaiable_device()['id']
 
             screen_data: str = execute(
                 COMMAND_INFO_SCREEN.format(device_id))
-
             battery_data: list = execute(
                 COMMAND_INFO_BATTERY.format(device_id)).split()
-                
             general_data: list = execute(
                 COMMAND_INFO_DEVICE.format(device_id)).split()
-
             package_list_tmp: list = execute(
                 COMMAND_LIST_PACKAGES.format(device_id)).split("\n")
 
@@ -280,7 +293,9 @@ the 'get_first_avaiable_device[\'id'] function and use theDEVICE_ID to refer to 
             i = 0
             while i < len(package_list_tmp):
                 if package_list_tmp[i]:
-                    package_list.append(package_list_tmp[i].removesuffix("\r"))
+                    pack = package_list_tmp[i].removesuffix("\r")
+                    pack = pack.split(":")[-1]
+                    package_list.append(pack)
                 i += 1
 
             model: str = general_data[general_data.index(
@@ -328,26 +343,19 @@ you have to allow the operation from the device
         if not self.get_first_avaiable_device():
             raise RuntimeError("no device detected")
         else:
-                self._basic_device_check()
+            self._basic_device_check()
             # path check
-            # try:
+            real_path: str = realpath(path)
+            if not exists(real_path):
+                raise RuntimeError(f"no such apk file: '{real_path}'")
 
-                if ".apk"  not in path:
-                    raise RuntimeError(f"'{path}' is not a apk file")
+            if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
+                device_id = self.get_first_avaiable_device()['id']
 
-                real_path: str = paths.realpath(path)
-                
-                if not paths.exists(real_path):
-                    raise RuntimeError(f"no such apk file: '{real_path}'")
-
-                if not device_id:
-                    device_id = self.get_first_avaiable_device()['id']
-
-                print(" > request sent to device")
-                return execute_keyevent(COMMAND_INSTALL_APK.format(device_id, path))
-            # except AttributeError:
-            #     raise AttributeError(f"colud not find  '{path}' on your pc")
-
+            print(" > request sent to device")
+            print(" > confirm installation")
+            return execute_keyevent(COMMAND_INSTALL_APK.format(device_id, path))
 
     def uninstall_apk(self, package_name: str, device_id=None) -> bool:
         """
@@ -360,6 +368,7 @@ packages present on this device run 'phone_data()['packages']'
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()['id']
 
             system(COMMAND_UNINSTALL_APK.format(
@@ -398,6 +407,7 @@ to do it, use the 'power_button' function
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
             return execute_keyevent(BASIC_INPUT_KEYEVENT.format(
                 device_id, KEYEVENT_SCREENSHOT))
@@ -411,6 +421,7 @@ this command simulate the pressing of power button
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
             return execute_keyevent(BASIC_INPUT_KEYEVENT.format(
                 device_id, KEYEVENT_POWER_BUTTON))
@@ -424,6 +435,7 @@ this function start a call even if the device is locked
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id: str = self.get_first_avaiable_device()["id"]
             return execute_intent(INTENT_CALLTO.format(device_id, phone_number))
 
@@ -437,6 +449,7 @@ this function send a sms, but the phone need to be locked
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
             execute_intent(INTENT_SENDTO.format(device_id, phone_number, message))
 
@@ -446,11 +459,8 @@ this function send a sms, but the phone need to be locked
                 return False
             else:
                 for i in range(3):
-                    sleep(0.3)
                     execute_keyevent(BASIC_INPUT_KEYEVENT.format(
                         device_id, KEYEVENT_TAB))
-                    execute_keyevent(BASIC_INPUT_KEYEVENT.format(
-                        device_id, KEYEVENT_RETURN))
                 return True
 
     def insert_text(self, text: str, device_id: str = None) -> bool:
@@ -462,6 +472,7 @@ this function input a text only if the device is locked
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id: str = self.get_first_avaiable_device()["id"]
             return execute(COMMAND_INSERT_TEXT.format(device_id, text))
 
@@ -475,6 +486,7 @@ this function try to unlock the screen, you may provide a password if needed
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id: str = self.get_first_avaiable_device()["id"]
 
             status: dict = self.display_status()
@@ -514,6 +526,7 @@ this function just take photo, serveral arguments ca be provided such as:
         * zoom_in : <int> if specified it zoom out the camera 'n' times
         """
         if not device_id:
+            if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
             device_id = self.get_first_avaiable_device()["id"]
         
             
@@ -545,6 +558,7 @@ call this function if you want to capture video, you can provide some data like:
         * duration : <int> in seconds of the duration of the video
         """
         if not device_id:
+            if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
             device_id = self.get_first_avaiable_device()["id"]
 
         if self.open_camera(device_id=device_id,camera_type=2,frontal_camera=1 if frontal_camera else 0):
@@ -593,6 +607,7 @@ you need to pass:
             self._basic_device_check()
             if self.display_status():
                 if not device_id:
+                    if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                     device_id: str = self.get_first_avaiable_device()["id"]
                 return execute_keyevent(COMMAND_SWIPE.format(
                     device_id, from_x, from_y, to_x, to_y))
@@ -609,6 +624,7 @@ You can use this function to tap on the screen giving x and y
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
 
             return execute_keyevent(COMMAND_TAP.format(device_id, x, y))
@@ -627,6 +643,7 @@ just turn off the phone, you can provide 'countdown' as timer for shutdown
             self._basic_device_check()
 
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
 
             if countdown:
@@ -653,6 +670,7 @@ reboot the phone, you can provide 'countdown' as timer for shutdown
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
             if countdown:
                 i = 1
@@ -684,6 +702,7 @@ you can use specific function like open_calendar, open_music, ecc..
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
             
             if self.display_status(device_id)["is_locked"]:
@@ -714,6 +733,7 @@ you can use specific function like open_calendar, open_music, ecc..
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
 
             if camera_type == 1:
@@ -736,6 +756,7 @@ you can also use specific function like home(), back() or foreground()
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
 
             if not self.display_status(device_id)["is_awake"]:
@@ -754,6 +775,7 @@ simulate home gesture
         """
 
         if not device_id:
+            if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
             device_id = self.get_first_avaiable_device()["id"]
         return self.navigate("home",device_id)
 
@@ -764,6 +786,7 @@ simulate back gesture
         """
 
         if not device_id:
+            if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
             device_id = self.get_first_avaiable_device()["id"]
         return self.navigate("back",device_id)
 
@@ -773,6 +796,7 @@ simulate home background app gesture
         """
 
         if not device_id:
+            if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
             device_id = self.get_first_avaiable_device()["id"]
         return self.navigate("foreground",device_id)
 
@@ -782,6 +806,7 @@ toggle notification center
         """
 
         if not device_id:
+            if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
             device_id = self.get_first_avaiable_device()["id"]
         return self.navigate("notification_center",device_id)
 
@@ -794,6 +819,7 @@ open the voice assitent, the same as saying 'ok google'
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
             return execute_keyevent(BASIC_INPUT_KEYEVENT.format(device_id,KEYEVENT_VOICE_ASSISTANT))
 
@@ -807,6 +833,7 @@ specify how many times raise the volume
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
 
             res = False
@@ -826,6 +853,7 @@ specify how many times low the volume
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
 
             res = False
@@ -844,6 +872,7 @@ specify how many times raise the brightness
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
 
             res = False
@@ -862,6 +891,7 @@ specify how many times low the brightness
         else:
             self._basic_device_check()
             if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
 
             res = False

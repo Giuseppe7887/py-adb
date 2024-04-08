@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: adb-connector-python
-Version: 1.0.2
+Version: 1.1.5
 Summary: A simple python package to interface with adb
 Author: Giuseppe Gravante
 License: MIT License
@@ -28,6 +28,7 @@ Project-URL: repository, https://github.com/Giuseppe7887/py-adb
 Requires-Python: >=3.7
 Description-Content-Type: text/markdown
 License-File: LICENSE
+Requires-Dist: termcolor
 
 # PY-ADB
 
