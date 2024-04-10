@@ -615,7 +615,7 @@ you need to pass:
                 print(colored(" > ERROR : phone need to be awake","red"))
                 return False
             
-    def multitap(self, x: int, y: int,times:int= 2,milliseconds:int=0, device_id: str = None) -> bool:
+    def multitap(self, x: int, y: int,times:int,milliseconds:int=0, device_id: str = None) -> bool:
         """
 You can use this function to tap on the screen giving x and y at very fast time providing milliseconds
 between a tap and an other and times to express how many times will be tapped
@@ -627,10 +627,15 @@ between a tap and an other and times to express how many times will be tapped
             if not device_id:
                 if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
                 device_id = self.get_first_avaiable_device()["id"]
+        if times > 0:
+            for _ in range(times):
+                execute_keyevent(COMMAND_TAP.format(device_id, x, y))
+                sleep(milliseconds / 1000)
+        else:
+            while True:
+                execute_keyevent(COMMAND_TAP.format(device_id, x, y))
+                sleep(milliseconds / 1000)
 
-        for _ in range(times):
-            execute_keyevent(COMMAND_TAP.format(device_id, x, y))
-            sleep(milliseconds / 1000)
           
 
 
