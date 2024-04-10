@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: adb-connector-python
-Version: 1.1.5
+Version: 1.1.6
 Summary: A simple python package to interface with adb
 Author: Giuseppe Gravante
 License: MIT License

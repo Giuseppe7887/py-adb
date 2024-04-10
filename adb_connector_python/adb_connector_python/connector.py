@@ -151,6 +151,9 @@ a list of avaiable function and methods with description
 
     def __init__(self) -> None:
         # if adb shell is not running, raise a RuntimeError exception
+
+
+
         if not self.is_adb_running():
             raise RuntimeError(
                 "ADB is not running, please start it with 'adb start-server'")

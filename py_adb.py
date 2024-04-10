@@ -1,4 +1,4 @@
-from subprocess import check_output, CalledProcessError
+from subprocess import check_output, CalledProcessError,run
 from os import system
 from sys import platform
 from time import sleep
@@ -614,6 +614,38 @@ you need to pass:
             else:
                 print(colored(" > ERROR : phone need to be awake","red"))
                 return False
+            
+    def multitap(self, x: int, y: int,times:int= 2,milliseconds:int=0, device_id: str = None) -> bool:
+        """
+You can use this function to tap on the screen giving x and y at very fast time providing milliseconds
+between a tap and an other and times to express how many times will be tapped
+        """
+        if not self.get_first_avaiable_device():
+            raise RuntimeError("no device detected")
+        else:
+            self._basic_device_check()
+            if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
+                device_id = self.get_first_avaiable_device()["id"]
+
+        for _ in range(times):
+            execute_keyevent(COMMAND_TAP.format(device_id, x, y))
+            sleep(milliseconds / 1000)
+          
+
+
+    def precision_tap(self,instructions:list, device_id: str = None)->None:
+        if not self.get_first_avaiable_device():
+            raise RuntimeError("no device detected")
+        else:
+            self._basic_device_check()
+            if not device_id:
+                if len(self.list_devices()) == 0: raise RuntimeError("a device must be connected")
+                device_id = self.get_first_avaiable_device()["id"]
+
+        for x in instructions:
+            sleep(x["milliseconds"] / 1000)
+            execute_keyevent(COMMAND_TAP.format(device_id,x["x"],x["y"]))
 
     def tap(self, x: int, y: int, device_id: str = None) -> bool:
         """
