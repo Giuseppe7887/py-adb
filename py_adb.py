@@ -73,14 +73,17 @@ CMD_LIST_DEVICES: str = "adb devices"
 
 
 
-def IS_ADB_RUNNING_CMD() -> str:
+
+def IS_ADB_RUNNING_CMD() -> bool:
     match platform:
         case "win32":
-            return "tasklist | findstr adb"
+            return len([x for x in check_output("tasklist | findstr adb",shell=True).decode("utf8").split("\n") if "adb" in x]) >=2
         case "linux" | "darwin":
-            return "ps aux | grep adb"
+            return  len([x for x in check_output("ps aux | grep adb",shell=True).decode("utf8").split("\n") if "adb" in x]) >=2
         case _:
             raise RuntimeError("os not supported")
+
+
 
 
 def execute(CMD:str):
@@ -96,7 +99,7 @@ def execute_intent(CMD_INTENT:str) ->bool:
         return True 
     else:
         return False
-    
+
 
 def clear_cmd():
     match platform:
@@ -104,6 +107,15 @@ def clear_cmd():
             system("cls")
         case "linux" | "darwin":
             system("clear")
+
+try:
+    check_output("adb start-server")
+    check_output("adb --version", shell=True)
+except:
+    raise CalledProcessError(127,"You have not adb installed on this pc")
+
+
+
 
 
 class Py_adb:
@@ -183,7 +195,7 @@ this function return boolean value True if adb is runnig else it raises
 a RuntimeError exception, to solve this issue just run in CMD 'adb start-server'
         """
         try:
-            return execute_keyevent(IS_ADB_RUNNING_CMD()) != ""
+            return IS_ADB_RUNNING_CMD()
         except CalledProcessError:
             return False
 
