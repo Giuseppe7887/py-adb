@@ -1,9 +1,0 @@
-LICENSE
-README.md
-pyproject.toml
-adb_connector_python/connector.py
-adb_connector_python.egg-info/PKG-INFO
-adb_connector_python.egg-info/SOURCES.txt
-adb_connector_python.egg-info/dependency_links.txt
-adb_connector_python.egg-info/requires.txt
-adb_connector_python.egg-info/top_level.txt
