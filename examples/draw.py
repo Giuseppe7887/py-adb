@@ -51,18 +51,6 @@ def draw():
         to_x=right,
         to_y=bottom
     )
-   
-
-
-  
-
-    
-
-
-
-    
-    
-        
-        
+           
 
 draw()
