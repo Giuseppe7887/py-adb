@@ -9,7 +9,7 @@ device = Py_adb()
 
 
 
-# change with yout device specific points
+# change with your device specific points
 def draw():
     center = 550
     right = 275
