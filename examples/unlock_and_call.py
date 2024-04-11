@@ -3,7 +3,7 @@ from adb_connector_python.connector import Py_adb
 
 device = Py_adb()
 
-# set this fields
+# set these fields
 phone_password = ""
 number_to_call =""
 
