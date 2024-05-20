@@ -108,14 +108,6 @@ def clear_cmd():
         case "linux" | "darwin":
             system("clear")
 
-try:
-    check_output("adb start-server")
-    check_output("adb --version", shell=True)
-except:
-    raise CalledProcessError(127,"You have not adb installed on this pc")
-
-
-
 
 
 class Py_adb:

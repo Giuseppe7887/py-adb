@@ -3,3 +3,4 @@ launch_package.py
 pyproject.toml
 main.py
 build/*
+venv/
